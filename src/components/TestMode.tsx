@@ -11,29 +11,31 @@ import {
 
 // Стилизованные компоненты
 const TestPaper = styled(Paper)(() => ({
-  padding: '20px',
-  borderRadius: '15px',
-  boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
+  padding: '16px',
+  borderRadius: '12px',
+  boxShadow: '0 3px 10px rgba(0, 0, 0, 0.08)',
   background: 'linear-gradient(to right, #ffffff, #f9f9f9)',
   textAlign: 'center',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  minHeight: '250px',
+  minHeight: '200px',
+  width: '100%',
+  maxWidth: '95%',
 }));
 
 const SubmitButton = styled(Button)(() => ({
   background: 'linear-gradient(45deg, #00d2ff, #3a7bd5)',
   color: 'white',
-  borderRadius: '20px',
-  padding: '10px 20px',
+  borderRadius: '16px',
+  padding: '6px 16px',
   fontWeight: 'bold',
   transition: 'all 0.3s ease',
-  boxShadow: '0 3px 8px rgba(58, 123, 213, 0.3)',
+  boxShadow: '0 2px 6px rgba(58, 123, 213, 0.3)',
   '&:hover': {
-    transform: 'translateY(-2px)',
-    boxShadow: '0 6px 15px rgba(58, 123, 213, 0.4)',
+    transform: 'translateY(-1px)',
+    boxShadow: '0 4px 10px rgba(58, 123, 213, 0.4)',
   },
 }));
 
@@ -111,18 +113,27 @@ const TestMode = (): React.ReactNode => {
   const progress = ((testMode.totalQuestions - testMode.questionsLeft) / testMode.totalQuestions) * 100;
   
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <Box sx={{ mb: 2 }}>
-        <Typography variant="subtitle1" sx={{ textAlign: 'center', mb: 1 }}>
+    <Box sx={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      height: '100%', 
+      width: '100%',
+      maxWidth: { xs: '100%', sm: '95%', md: '800px' }, 
+      mx: 'auto', 
+      px: { xs: 1, sm: 1.5, md: 2 },
+      overflow: 'hidden'
+    }}>
+      <Box sx={{ mb: 0.5 }}>
+        <Typography variant="subtitle1" sx={{ textAlign: 'center', mb: 0.5, fontSize: { xs: '0.85rem', sm: '0.95rem' } }}>
           Тест: {testMode.totalQuestions - testMode.questionsLeft} из {testMode.totalQuestions} вопросов
         </Typography>
         <LinearProgress 
           variant="determinate" 
           value={progress} 
           sx={{ 
-            height: 10, 
-            borderRadius: 5,
-            backgroundColor: 'rgba(0,0,0,0.1)',
+            height: { xs: 6, sm: 8 }, 
+            borderRadius: { xs: 3, sm: 4 },
+            backgroundColor: 'rgba(0,0,0,0.08)',
             '& .MuiLinearProgress-bar': {
               backgroundColor: 'primary.main',
             }
@@ -131,46 +142,47 @@ const TestMode = (): React.ReactNode => {
       </Box>
       
       {testMode.questionsLeft > 0 ? (
-        <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Box sx={{ flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', mt: 1 }}>
           <TestPaper elevation={3}>
-            <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold', color: '#2c3e50' }}>
+            <Typography variant="h5" sx={{ mb: 2, fontWeight: 'bold', color: '#2c3e50' }}>
               {question.factor1} × {question.factor2} = ?
             </Typography>
             
-            <TextField
-              label="Ваш ответ"
-              variant="outlined"
-              value={answer}
-              onChange={handleInputChange}
-              onKeyPress={handleKeyPress}
-              autoFocus
-              sx={{ 
-                mb: 3, 
-                width: '150px',
-                input: { 
-                  textAlign: 'center',
-                  fontSize: '1.5rem',
-                }
-              }}
-            />
-            
-            <SubmitButton 
-              onClick={handleCheckAnswer}
-              disabled={!answer}
-              variant="contained"
-              size="large"
-            >
-              Проверить
-            </SubmitButton>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'center', gap: 1, mb: 2 }}>
+              <TextField
+                label="Ваш ответ"
+                variant="outlined"
+                value={answer}
+                onChange={handleInputChange}
+                onKeyPress={handleKeyPress}
+                autoFocus
+                sx={{ 
+                  width: '120px',
+                  input: { 
+                    textAlign: 'center',
+                    fontSize: '1.4rem',
+                  }
+                }}
+              />
+              
+              <SubmitButton 
+                onClick={handleCheckAnswer}
+                disabled={!answer}
+                variant="contained"
+                size="medium"
+              >
+                Проверить
+              </SubmitButton>
+            </Box>
             
             {isCorrect !== null && (
               <Typography 
-                variant="h6" 
+                variant="subtitle1" 
                 sx={{ 
-                  mt: 2,
                   color: isCorrect ? 'success.main' : 'error.main',
                   fontWeight: 'bold',
-                  animation: 'fadeIn 0.5s'
+                  animation: 'fadeIn 0.5s',
+                  fontSize: '1rem'
                 }}
               >
                 {isCorrect ? 'Правильно!' : 'Неверно!'}
@@ -179,21 +191,34 @@ const TestMode = (): React.ReactNode => {
           </TestPaper>
         </Box>
       ) : (
-        <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Box sx={{ flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', mt: 2 }}>
           <TestPaper elevation={3}>
-            <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold', color: '#2c3e50' }}>
+            <Typography variant="h5" sx={{ mb: 2, fontWeight: 'bold', color: '#2c3e50' }}>
               Тест завершен!
             </Typography>
             
-            <Typography variant="h5" sx={{ mb: 3 }}>
-              Ваш результат: {testMode.correctAnswers} из {testMode.totalQuestions}
-              ({Math.round((testMode.correctAnswers / testMode.totalQuestions) * 100)}%)
-            </Typography>
+            <Box sx={{ 
+              p: 2, 
+              bgcolor: 'rgba(0, 0, 0, 0.03)', 
+              borderRadius: 2,
+              mb: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center'
+            }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 'medium', mb: 0.5 }}>
+                Ваш результат:
+              </Typography>
+              <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+                {testMode.correctAnswers} из {testMode.totalQuestions}
+                ({Math.round((testMode.correctAnswers / testMode.totalQuestions) * 100)}%)
+              </Typography>
+            </Box>
             
             <SubmitButton 
               onClick={handleRestartTest}
               variant="contained"
-              size="large"
+              size="medium"
             >
               Пройти тест снова
             </SubmitButton>

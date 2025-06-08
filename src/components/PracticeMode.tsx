@@ -56,7 +56,7 @@ const QuestionPaper = styled(Paper)(() => ({
 
 const PracticeMode: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { level, question, answer, isCorrect, stats } = useAppSelector((state) => state.multiplication);
+  const { level, question, answer, isCorrect, explanation, stats } = useAppSelector((state) => state.multiplication);
   
   // Генерация случайного вопроса
   const generateQuestion = useCallback(() => {
@@ -100,12 +100,15 @@ const PracticeMode: React.FC = () => {
   const handleCheckAnswer = useCallback(() => {
     if (answer) {
       dispatch(checkAnswer());
-      // Небольшая задержка перед новым вопросом
-      setTimeout(() => {
-        generateQuestion();
-      }, 1500);
+      // Больше не используем автоматический таймер для перехода к следующему вопросу
+      // Теперь пользователь сам решает, когда перейти к следующему вопросу
     }
-  }, [answer, dispatch, generateQuestion]);
+  }, [answer, dispatch]);
+  
+  // Обработчик перехода к следующему вопросу
+  const handleNextQuestion = useCallback(() => {
+    generateQuestion();
+  }, [generateQuestion]);
   
   // Обработчик нажатия Enter
   const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
@@ -120,12 +123,20 @@ const PracticeMode: React.FC = () => {
   }, [level, generateQuestion]);
   
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <Box sx={{ mb: 2 }}>
-        <Typography variant="subtitle1" sx={{ textAlign: 'center', mb: 1 }}>
+    <Box sx={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      height: '100%', 
+      width: '100%',
+      maxWidth: { xs: '100%', sm: '95%', md: '800px' }, 
+      mx: 'auto', 
+      px: { xs: 1, sm: 1.5, md: 2 }
+    }}>
+      <Box sx={{ mb: 1 }}>
+        <Typography variant="subtitle1" sx={{ textAlign: 'center', mb: 0.5, fontSize: '0.95rem' }}>
           Выберите уровень сложности:
         </Typography>
-        <Box sx={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 0.5 }}>
           <LevelButton 
             isactive={(level === 'easy').toString()}
             onClick={() => handleLevelChange('easy')}
@@ -153,50 +164,136 @@ const PracticeMode: React.FC = () => {
         </Box>
       </Box>
       
-      <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <QuestionPaper elevation={3}>
-          <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold', color: '#2c3e50' }}>
+      <Box sx={{ flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', mt: 1, overflow: 'hidden' }}>
+        <QuestionPaper elevation={3} sx={{ 
+          maxWidth: { xs: '100%', sm: '95%' }, 
+          width: '100%',
+          overflow: 'auto',
+          '&::-webkit-scrollbar': {
+            width: '4px',
+            height: '4px',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            backgroundColor: 'rgba(0,0,0,0.2)',
+            borderRadius: '4px',
+          }
+        }}>
+          <Typography variant="h5" sx={{ 
+            mb: { xs: 1, sm: 1.5, md: 2 }, 
+            fontWeight: 'bold', 
+            color: '#2c3e50',
+            fontSize: { xs: '1.2rem', sm: '1.4rem', md: '1.5rem' }
+          }}>
             {question.factor1} × {question.factor2} = ?
           </Typography>
           
-          <TextField
-            label="Ваш ответ"
-            variant="outlined"
-            value={answer}
-            onChange={handleAnswerChange}
-            onKeyPress={handleKeyPress}
-            autoFocus
-            sx={{ 
-              mb: 3, 
-              width: '150px',
-              input: { 
-                textAlign: 'center',
-                fontSize: '1.5rem',
-              }
-            }}
-          />
-          
-          <SubmitButton 
-            onClick={handleCheckAnswer}
-            disabled={!answer}
-            variant="contained"
-            size="large"
-          >
-            Проверить
-          </SubmitButton>
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: { xs: 'column', sm: 'row' }, 
+            alignItems: 'center', 
+            gap: { xs: 0.5, sm: 1 }, 
+            mb: { xs: 1, sm: 1.5, md: 2 },
+            width: '100%'
+          }}>
+            <TextField
+              label="Ваш ответ"
+              variant="outlined"
+              value={answer}
+              onChange={handleAnswerChange}
+              onKeyPress={handleKeyPress}
+              autoFocus
+              sx={{ 
+                width: { xs: '100px', sm: '120px' },
+                input: { 
+                  textAlign: 'center',
+                  fontSize: { xs: '1.2rem', sm: '1.4rem' },
+                }
+              }}
+            />
+            
+            <SubmitButton 
+              onClick={handleCheckAnswer}
+              disabled={!answer}
+              variant="contained"
+              size="medium"
+              sx={{ width: { xs: '100%', sm: 'auto' } }}
+            >
+              Проверить
+            </SubmitButton>
+          </Box>
           
           {isCorrect !== null && (
-            <Typography 
-              variant="h6" 
-              sx={{ 
-                mt: 2,
-                color: isCorrect ? 'success.main' : 'error.main',
-                fontWeight: 'bold',
-                animation: 'fadeIn 0.5s'
-              }}
-            >
-              {isCorrect ? 'Правильно!' : 'Неверно!'}
-            </Typography>
+            <Box sx={{ 
+              mt: { xs: 0.5, sm: 1 },
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center'
+            }}>
+              <Typography 
+                variant="subtitle1" 
+                sx={{ 
+                  color: isCorrect ? 'success.main' : 'error.main',
+                  fontWeight: 'bold',
+                  animation: 'fadeIn 0.5s',
+                  fontSize: { xs: '0.9rem', sm: '1rem' }
+                }}
+              >
+                {isCorrect ? 'Правильно!' : 'Неверно!'}
+              </Typography>
+              
+              {!isCorrect && explanation && (
+                <Paper 
+                  elevation={2} 
+                  sx={{ 
+                    mt: { xs: 0.5, sm: 1 }, 
+                    p: { xs: 1, sm: 1.5 }, 
+                    backgroundColor: '#fff8e1',
+                    borderRadius: '8px',
+                    border: '1px solid #ffe082',
+                    width: '100%',
+                    maxHeight: { xs: '150px', sm: '200px' },
+                    overflow: 'auto'
+                  }}
+                >
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
+                      whiteSpace: 'pre-line',
+                      fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                      color: '#5d4037',
+                      textAlign: 'left'
+                    }}
+                  >
+                    {explanation}
+                  </Typography>
+                </Paper>
+              )}
+              
+              <Button
+                onClick={handleNextQuestion}
+                variant="contained"
+                color="primary"
+                size="small"
+                sx={{
+                  mt: { xs: 1, sm: 1.5 },
+                  width: { xs: '100%', sm: 'auto' },
+                  background: 'linear-gradient(45deg, #4CAF50, #8BC34A)',
+                  color: 'white',
+                  borderRadius: '16px',
+                  padding: { xs: '4px 10px', sm: '6px 12px' },
+                  fontWeight: 'bold',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 2px 5px rgba(76, 175, 80, 0.3)',
+                  '&:hover': {
+                    transform: 'translateY(-1px)',
+                    boxShadow: '0 4px 10px rgba(76, 175, 80, 0.4)',
+                  },
+                }}
+              >
+                Следующий вопрос
+              </Button>
+            </Box>
           )}
         </QuestionPaper>
       </Box>
