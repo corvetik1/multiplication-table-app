@@ -1,16 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { Box, Typography, TextField, Button, Paper, LinearProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useAppSelector, useAppDispatch } from '@/redux/hooks';
 import { 
-  setAnswer, 
+  setAnswer as setTestAnswer, 
   checkAnswer, 
   setQuestion, 
   resetTestMode 
 } from '@/redux/features/multiplicationSlice';
 
 // Стилизованные компоненты
-const TestPaper = styled(Paper)(({ theme }) => ({
+const TestPaper = styled(Paper)(() => ({
   padding: '20px',
   borderRadius: '15px',
   boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
@@ -23,7 +23,7 @@ const TestPaper = styled(Paper)(({ theme }) => ({
   minHeight: '250px',
 }));
 
-const SubmitButton = styled(Button)(({ theme }) => ({
+const SubmitButton = styled(Button)(() => ({
   background: 'linear-gradient(45deg, #00d2ff, #3a7bd5)',
   color: 'white',
   borderRadius: '20px',
@@ -37,12 +37,12 @@ const SubmitButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-const TestMode: React.FC = () => {
+const TestMode = (): React.ReactNode => {
   const dispatch = useAppDispatch();
   const { question, answer, isCorrect, level, testMode } = useAppSelector((state) => state.multiplication);
   
   // Генерация нового вопроса для теста
-  const generateTestQuestion = () => {
+  const generateTestQuestion = useCallback(() => {
     let factor1: number, factor2: number;
     
     switch (level) {
@@ -64,19 +64,19 @@ const TestMode: React.FC = () => {
     }
     
     dispatch(setQuestion({ factor1, factor2 }));
-  };
+  }, [level, dispatch]);
   
-  // Обработчик изменения ответа
-  const handleAnswerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Обработчик ввода ответа
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     // Разрешаем только цифры
     if (/^\d*$/.test(value)) {
-      dispatch(setAnswer(value));
+      dispatch(setTestAnswer(value));
     }
-  };
+  }, [dispatch]);
   
   // Обработчик проверки ответа
-  const handleCheckAnswer = () => {
+  const handleCheckAnswer = useCallback(() => {
     if (answer) {
       dispatch(checkAnswer());
       
@@ -87,25 +87,25 @@ const TestMode: React.FC = () => {
         }, 1500);
       }
     }
-  };
+  }, [answer, dispatch, generateTestQuestion, testMode.questionsLeft]);
   
   // Обработчик нажатия Enter
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && answer) {
       handleCheckAnswer();
     }
-  };
+  }, [answer, handleCheckAnswer]);
   
   // Обработчик перезапуска теста
-  const handleRestartTest = () => {
+  const handleRestartTest = useCallback(() => {
     dispatch(resetTestMode());
     generateTestQuestion();
-  };
+  }, [dispatch, generateTestQuestion]);
   
   // Генерация первого вопроса при загрузке
   useEffect(() => {
     generateTestQuestion();
-  }, []);
+  }, [generateTestQuestion]);
   
   // Расчет прогресса
   const progress = ((testMode.totalQuestions - testMode.questionsLeft) / testMode.totalQuestions) * 100;
@@ -141,7 +141,7 @@ const TestMode: React.FC = () => {
               label="Ваш ответ"
               variant="outlined"
               value={answer}
-              onChange={handleAnswerChange}
+              onChange={handleInputChange}
               onKeyPress={handleKeyPress}
               autoFocus
               sx={{ 

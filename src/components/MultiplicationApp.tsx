@@ -36,7 +36,7 @@ const ModeButton = styled(Button)<{ isactive: string }>(({ theme, isactive }) =>
   },
 }));
 
-const ContentPaper = styled(Paper)(({ theme }) => ({
+const ContentPaper = styled(Paper)(() => ({
   flex: 1,
   display: 'flex',
   flexDirection: 'column',

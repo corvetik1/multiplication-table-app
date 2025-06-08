@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Box, Typography, TextField, Button, Paper, Grid } from '@mui/material';
+import React, { useEffect, useCallback } from 'react';
+import { Box, Typography, TextField, Button, Paper } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useAppSelector, useAppDispatch } from '@/redux/hooks';
 import { 
@@ -11,7 +11,7 @@ import {
 } from '@/redux/features/multiplicationSlice';
 
 // Стилизованные компоненты
-const LevelButton = styled(Button)<{ isactive: string }>(({ theme, isactive }) => ({
+const LevelButton = styled(Button)<{ isactive: string }>(({ isactive }) => ({
   background: isactive === 'true' 
     ? 'linear-gradient(45deg, #ff9a9e, #fecfef)'
     : 'linear-gradient(45deg, #a8edea, #fed6e3)',
@@ -26,7 +26,7 @@ const LevelButton = styled(Button)<{ isactive: string }>(({ theme, isactive }) =
   },
 }));
 
-const SubmitButton = styled(Button)(({ theme }) => ({
+const SubmitButton = styled(Button)(() => ({
   background: 'linear-gradient(45deg, #00d2ff, #3a7bd5)',
   color: 'white',
   borderRadius: '20px',
@@ -40,7 +40,8 @@ const SubmitButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-const QuestionPaper = styled(Paper)(({ theme }) => ({
+
+const QuestionPaper = styled(Paper)(() => ({
   padding: '20px',
   borderRadius: '15px',
   boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)',
@@ -57,9 +58,9 @@ const PracticeMode: React.FC = () => {
   const dispatch = useAppDispatch();
   const { level, question, answer, isCorrect, stats } = useAppSelector((state) => state.multiplication);
   
-  // Генерация нового вопроса в зависимости от уровня сложности
-  const generateQuestion = () => {
-    let factor1: number, factor2: number;
+  // Генерация случайного вопроса
+  const generateQuestion = useCallback(() => {
+    let factor1, factor2;
     
     switch (level) {
       case 'easy':
@@ -71,17 +72,16 @@ const PracticeMode: React.FC = () => {
         factor2 = Math.floor(Math.random() * 7) + 2; // 2-8
         break;
       case 'hard':
+      default:
         factor1 = Math.floor(Math.random() * 10) + 1; // 1-10
         factor2 = Math.floor(Math.random() * 10) + 1; // 1-10
         break;
-      default:
-        factor1 = Math.floor(Math.random() * 10) + 1;
-        factor2 = Math.floor(Math.random() * 10) + 1;
     }
     
     dispatch(setQuestion({ factor1, factor2 }));
-  };
-  
+    dispatch(setAnswer(''));
+  }, [level, dispatch]);
+
   // Обработчик изменения уровня сложности
   const handleLevelChange = (newLevel: Level) => {
     dispatch(setLevel(newLevel));
@@ -97,7 +97,7 @@ const PracticeMode: React.FC = () => {
   };
   
   // Обработчик проверки ответа
-  const handleCheckAnswer = () => {
+  const handleCheckAnswer = useCallback(() => {
     if (answer) {
       dispatch(checkAnswer());
       // Небольшая задержка перед новым вопросом
@@ -105,19 +105,19 @@ const PracticeMode: React.FC = () => {
         generateQuestion();
       }, 1500);
     }
-  };
+  }, [answer, dispatch, generateQuestion]);
   
   // Обработчик нажатия Enter
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && answer) {
       handleCheckAnswer();
     }
-  };
+  }, [answer, handleCheckAnswer]);
   
   // Генерация вопроса при первой загрузке и при изменении уровня
   useEffect(() => {
     generateQuestion();
-  }, [level]);
+  }, [level, generateQuestion]);
   
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>

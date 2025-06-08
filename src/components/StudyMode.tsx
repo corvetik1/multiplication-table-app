@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Box, Button, Container, Paper, Typography } from '@mui/material';
+import React from 'react';
+import { Box, Button, Paper, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useAppSelector, useAppDispatch } from '@/redux/hooks';
 import { setActiveTable } from '@/redux/features/multiplicationSlice';
@@ -34,7 +34,7 @@ const TableCell = styled(Paper)(({ theme }) => ({
   },
 }));
 
-const HeaderCell = styled(TableCell)(({ theme }) => ({
+const HeaderCell = styled(TableCell)(() => ({
   background: 'linear-gradient(45deg, #4a90e2, #357abd)',
   color: 'white',
   fontWeight: 'bold',
@@ -73,17 +73,12 @@ const TableButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-const StudyMode: React.FC = () => {
+const StudyMode = (): React.ReactNode => {
   const dispatch = useAppDispatch();
   const activeTable = useAppSelector((state) => state.multiplication.activeTable);
   
   // Таблицы для быстрого выбора
-  const tables = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-  const [activeTableState, setActiveTableState] = useState<number | null>(null);
-
-  const handleTableClick = (tableNumber: number) => {
-    setActiveTableState(tableNumber === activeTableState ? null : tableNumber);
-  };
+  const tables: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   // Обработчик выбора таблицы
   const handleTableSelect = (num: number) => {
@@ -123,7 +118,7 @@ const StudyMode: React.FC = () => {
       
       for (let j = 1; j <= 10; j++) {
         const isHighlighted = 
-          (activeTable !== null && (i === activeTable || j === activeTable));
+          (activeTable !== null && activeTable !== 0 && (i === activeTable || j === activeTable));
         
         row.push(
           <TableCell 
@@ -194,7 +189,7 @@ const StudyMode: React.FC = () => {
         ))}
         <TableButton
           onClick={() => handleTableSelect(0)}
-          className={activeTable === null ? 'active' : ''}
+          className={activeTable === 0 ? 'active' : ''}
           variant="contained"
           size="small"
         >
