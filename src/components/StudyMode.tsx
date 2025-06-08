@@ -9,28 +9,31 @@ const TableCell = styled(Paper)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  height: '48px',
-  fontSize: '1rem',
-  transition: 'all 0.3s ease',
-  fontWeight: 500,
+  height: '50px',
+  width: '100%',
+  fontSize: '1.1rem',
+  fontWeight: 'normal',
   cursor: 'pointer',
-  userSelect: 'none',
-  padding: '4px',
+  transition: 'all 0.2s ease',
   '&:hover': {
-    background: '#e3f2fd',
     transform: 'scale(1.05)',
     boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
   },
   [theme.breakpoints.down('md')]: {
-    height: '45px',
-    fontSize: '0.95rem',
-    padding: '3px',
+    height: '40px',
+    fontSize: '0.9rem',
+    padding: '2px',
   },
   [theme.breakpoints.down('sm')]: {
-    height: '38px',
-    fontSize: '0.85rem',
-    padding: '2px',
+    height: '32px',
+    fontSize: '0.75rem',
+    padding: '1px',
     touchAction: 'manipulation', // Улучшает отзывчивость на мобильных устройствах
+  },
+  [theme.breakpoints.down('xs')]: {
+    height: '28px',
+    fontSize: '0.7rem',
+    padding: '0px',
   },
 }));
 
@@ -101,9 +104,18 @@ const StudyMode = (): React.ReactNode => {
     }
     
     rows.push(
-      <Box sx={{ display: 'flex', gap: { xs: 0.2, sm: 0.3, md: 0.5 }, width: '100%', mb: { xs: 0.2, sm: 0.3, md: 0.5 } }} key="header-row">
+      <Box sx={{ 
+        display: 'flex', 
+        gap: { xs: 0.1, sm: 0.2, md: 0.3 }, 
+        width: '100%', 
+        mb: { xs: 0.1, sm: 0.2, md: 0.3 },
+        overflow: 'hidden'
+      }} key="header-row">
         {headerRow.map((cell, index) => (
-          <Box sx={{ width: '9.09%' }} key={`header-cell-${index}`}>
+          <Box sx={{ 
+            width: '9.09%',
+            minWidth: { xs: '24px', sm: '28px', md: '32px' }
+          }} key={`header-cell-${index}`}>
             {cell}
           </Box>
         ))}
@@ -135,9 +147,18 @@ const StudyMode = (): React.ReactNode => {
       }
       
       rows.push(
-        <Box sx={{ display: 'flex', gap: { xs: 0.2, sm: 0.3, md: 0.5 }, width: '100%', mb: { xs: 0.2, sm: 0.3, md: 0.5 } }} key={`row-${i}`}>
+        <Box sx={{ 
+          display: 'flex', 
+          gap: { xs: 0.1, sm: 0.2, md: 0.3 }, 
+          width: '100%', 
+          mb: { xs: 0.1, sm: 0.2, md: 0.3 },
+          overflow: 'hidden'
+        }} key={`row-${i}`}>
           {row.map((cell, index) => (
-            <Box sx={{ width: '9.09%' }} key={`cell-${i}-${index}`}>
+            <Box sx={{ 
+              width: '9.09%',
+              minWidth: { xs: '24px', sm: '28px', md: '32px' }
+            }} key={`cell-${i}-${index}`}>
               {cell}
             </Box>
           ))}
@@ -153,67 +174,79 @@ const StudyMode = (): React.ReactNode => {
       display: 'flex', 
       flexDirection: 'column', 
       height: '100%',
-      maxWidth: '100%',
-      px: { xs: 1.5, sm: 2 },
-      py: { xs: 1.5, sm: 2 }
+      maxWidth: '100vw',
+      overflow: 'hidden',
+      px: { xs: 0.5, sm: 1, md: 1.5 },
+      py: { xs: 0.5, sm: 1, md: 1.5 }
     }}>
+      <Typography 
+        variant="subtitle1" 
+        sx={{ 
+          width: '100%', 
+          textAlign: 'center', 
+          mb: { xs: 0.5, sm: 1 },
+          fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' },
+          fontWeight: 'medium'
+        }}
+      >
+        Выберите таблицу:
+      </Typography>
+      
       <Box sx={{ 
-        mb: { xs: 1.5, sm: 2.5 }, 
+        mb: { xs: 0.5, sm: 1, md: 1.5 }, 
         display: 'flex', 
         flexWrap: 'wrap', 
         justifyContent: 'center',
-        gap: { xs: 0.5, sm: 1 }
+        gap: { xs: 0.3, sm: 0.5, md: 0.8 }
       }}>
-        <Typography 
-          variant="subtitle1" 
-          sx={{ 
-            width: '100%', 
-            textAlign: 'center', 
-            mb: { xs: 1.5, sm: 2 },
-            fontSize: { xs: '1.15rem', sm: '1.25rem' },
-            fontWeight: 'medium'
-          }}
-        >
-          Выберите таблицу для изучения:
-        </Typography>
         {tables.map((num) => (
           <TableButton
-            key={`table-btn-${num}`}
-            onClick={() => handleTableSelect(num)}
-            className={activeTable === num ? 'active' : ''}
+            key={`table-${num}`}
             variant="contained"
+            isactive={(activeTable === num).toString()}
+            onClick={() => handleTableSelect(num)}
             size="small"
           >
-            Таблица {num}
+            {num}
           </TableButton>
         ))}
         <TableButton
-          onClick={() => handleTableSelect(0)}
-          className={activeTable === 0 ? 'active' : ''}
           variant="contained"
+          isactive={(activeTable === 0).toString()}
+          onClick={() => handleTableSelect(0)}
           size="small"
         >
-          Все таблицы
+          Все
         </TableButton>
       </Box>
-      
+
+      {/* Таблица умножения */}
       <Box sx={{ 
         flex: 1, 
         backgroundColor: '#f8f9fa',
         borderRadius: '12px',
-        p: { xs: 0.5, sm: 1, md: 1.5 },
+        p: { xs: 0.3, sm: 0.5, md: 1 },
         boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-        mx: { xs: -0.5, sm: 0 }, // Отрицательный margin на мобильных для большей ширины
+        overflow: 'auto',
+        maxWidth: '100%',
+        mx: 'auto',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center'
       }}>
         <Box sx={{ 
           display: 'flex', 
-          flexDirection: 'column', 
-          gap: { xs: 0.25, sm: 0.4, md: 0.5 },
+          flexDirection: 'column',
           width: '100%',
-          maxWidth: '100%'
+          overflow: 'auto',
+          '&::-webkit-scrollbar': {
+            width: '4px',
+            height: '4px',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            backgroundColor: 'rgba(0,0,0,0.2)',
+            borderRadius: '4px',
+          }
         }}>
           {renderMultiplicationTable()}
         </Box>
