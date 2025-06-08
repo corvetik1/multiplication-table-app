@@ -5,7 +5,7 @@ import { useAppSelector, useAppDispatch } from '@/redux/hooks';
 import { setActiveTable } from '@/redux/features/multiplicationSlice';
 
 // Стилизованные компоненты
-const TableCell = styled(Paper)(() => ({
+const TableCell = styled(Paper)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -80,7 +80,10 @@ const StudyMode = (): React.ReactNode => {
   // Таблицы для быстрого выбора
   const tables: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-  // Обработчик клика по таблице реализован в кнопках
+  // Обработчик клика по таблице
+  const handleTableSelect = (num: number) => {
+    dispatch(setActiveTable(num));
+  };
 
   // Создание полной таблицы умножения
   const renderMultiplicationTable = () => {

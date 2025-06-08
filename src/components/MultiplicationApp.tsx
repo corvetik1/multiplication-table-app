@@ -8,8 +8,10 @@ import PracticeMode from './PracticeMode';
 import TestMode from './TestMode';
 
 // Стилизованные компоненты
-const ModeButton = styled(Button)<{ isactive: string }>(() => ({
-  background: (props) => props.isactive === 'true' 
+const ModeButton = styled(Button, {
+  shouldForwardProp: (prop) => prop !== 'isactive',
+})<{ isactive: string }>(({ isactive, theme }) => ({
+  background: isactive === 'true' 
     ? 'linear-gradient(45deg, #00d2ff, #3a7bd5)'
     : 'linear-gradient(45deg, #ff6b6b, #ee5a24)',
   color: 'white',
