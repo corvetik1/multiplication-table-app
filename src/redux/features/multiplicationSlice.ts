@@ -1,5 +1,16 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+// Вспомогательная функция для правильного склонения слов
+function getFriendlyWord(num: number, prefix: string = ''): string {
+  if (num === 1) {
+    return `${prefix} коробке`;
+  } else if (num >= 2 && num <= 4) {
+    return `${prefix} коробках`;
+  } else {
+    return `${prefix} коробках`;
+  }
+}
+
 export type Mode = 'study' | 'practice' | 'test';
 export type Level = 'easy' | 'medium' | 'hard';
 
@@ -13,6 +24,7 @@ interface MultiplicationState {
   };
   answer: string;
   isCorrect: boolean | null;
+  explanation: string;
   stats: {
     correct: number;
     total: number;
@@ -34,6 +46,7 @@ const initialState: MultiplicationState = {
   },
   answer: '',
   isCorrect: null,
+  explanation: '',
   stats: {
     correct: 0,
     total: 0,
@@ -64,14 +77,42 @@ export const multiplicationSlice = createSlice({
       state.question = action.payload;
       state.answer = '';
       state.isCorrect = null;
+      state.explanation = '';
     },
     setAnswer: (state, action: PayloadAction<string>) => {
       state.answer = action.payload;
     },
     checkAnswer: (state) => {
-      const correctAnswer = state.question.factor1 * state.question.factor2;
-      const isCorrect = parseInt(state.answer) === correctAnswer;
+      const { factor1, factor2 } = state.question;
+      const correctAnswer = factor1 * factor2;
+      const userAnswer = parseInt(state.answer);
+      const isCorrect = userAnswer === correctAnswer;
       state.isCorrect = isCorrect;
+      
+      // Формирование понятного объяснения для ребенка
+      if (!isCorrect) {
+        // Создаем объяснение на основе сложения
+        let explanation = `Умножение ${factor1} × ${factor2} означает, что нужно сложить число ${factor1} само с собой ${factor2} раз:\n\n`;
+        
+        // Добавляем наглядное представление умножения через сложение
+        explanation += `${factor1}`;
+        for (let i = 1; i < factor2; i++) {
+          explanation += ` + ${factor1}`;
+        }
+        explanation += ` = ${correctAnswer}\n\n`;
+        
+        // Добавляем пояснение с примером из жизни
+        if (factor1 <= 5 && factor2 <= 5) {
+          explanation += `Представь, что у тебя ${factor2} ${getFriendlyWord(factor2)} конфет, и в каждой ${getFriendlyWord(factor1, 'по')} ${factor1} штук.\n`;
+          explanation += `Всего у тебя будет ${correctAnswer} конфет.`;
+        } else {
+          explanation += `Правильный ответ: ${correctAnswer}`;
+        }
+        
+        state.explanation = explanation;
+      } else {
+        state.explanation = `Отлично! ${factor1} × ${factor2} = ${correctAnswer}`;
+      }
       
       if (state.mode === 'test') {
         state.testMode.questionsLeft -= 1;
